@@ -3,7 +3,7 @@ const h : number = window.innerHeight
 const scGap : number = 0.05
 const foreColor : string = "#f44336"
 const backGroundColor : string = "#bdbdbd"
-const nodes : number = 5 
+const nodes : number = 5
 
 const updateScale : Function = (scale : number, dir : number) => {
     return scale * dir * scGap
@@ -120,5 +120,28 @@ class FillAppendCanvasNode {
         }
         cb()
         return this
+    }
+}
+
+class FillAppendCanvasList {
+
+    curr : FillAppendCanvasNode = new FillAppendCanvasNode(0)
+    dir : number = 1
+
+    draw() {
+        this.curr.draw()
+    }
+
+    update(cb : Function) {
+        this.curr.update(cb)
+    }
+
+    startUpdating(cb : Function) {
+        this.curr.startUpdating(() => {
+            this.curr = this.curr.getNext(this.dir, () => {
+                this.dir *= -1
+            })
+            cb()
+        })
     }
 }
