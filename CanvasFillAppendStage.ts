@@ -165,3 +165,24 @@ class StageController {
         })
     }
 }
+
+class Stage {
+
+    controller : StageController = new StageController()
+
+    render() {
+        this.controller.draw()
+    }
+
+    handleTap() {
+        window.onmousedown = () => {
+            this.controller.handleTap()
+        }
+    }
+
+    static init() {
+        const stage : Stage = new Stage()
+        stage.render()
+        stage.handleTap()
+    }
+}
