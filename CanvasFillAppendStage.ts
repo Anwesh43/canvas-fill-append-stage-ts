@@ -12,3 +12,27 @@ const drawFilledRect : Function = (context : CanvasRenderingContext2D, sc : numb
     context.fillStyle = foreColor
     context.fillRect(0, 0, w, h * sc)
 }
+
+class State {
+
+    scale : number = 0
+    dir : number = 0
+    prevScale : number = 0
+
+    update(cb : Function) {
+        this.scale += updateScale(this.scale, this.dir)
+        if (Math.abs(this.scale - this.prevScale)) {
+            this.scale = this.prevScale + this.dir
+            this.dir = 0
+            this.prevScale = this.scale
+            cb()
+        }
+    }
+
+    startUpdating(cb : Function) {
+        if (this.dir == 0) {
+            this.dir = 1 - 2 * this.prevScale
+            cb()
+        }
+    }
+}
