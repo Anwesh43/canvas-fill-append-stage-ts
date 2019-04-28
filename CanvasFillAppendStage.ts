@@ -5,8 +5,8 @@ const foreColor : string = "#f44336"
 const backGroundColor : string = "#bdbdbd"
 const nodes : number = 5
 
-const updateScale : Function = (scale : number, dir : number) => {
-    return scale * dir * scGap
+const updateScale : Function = (dir : number) => {
+    return dir * scGap
 }
 
 const drawFilledRect : Function = (context : CanvasRenderingContext2D, sc : number) => {
@@ -21,8 +21,8 @@ class State {
     prevScale : number = 0
 
     update(cb : Function) {
-        this.scale += updateScale(this.scale, this.dir)
-        if (Math.abs(this.scale - this.prevScale)) {
+        this.scale += updateScale(this.dir)
+        if (Math.abs(this.scale - this.prevScale) > 1) {
             this.scale = this.prevScale + this.dir
             this.dir = 0
             this.prevScale = this.scale
@@ -46,7 +46,7 @@ class Animator {
     start(cb : Function) {
         if (!this.animated) {
             this.animated = true
-            setInterval(cb, 50)
+            this.interval = setInterval(cb, 50)
         }
     }
 
@@ -88,12 +88,12 @@ class FillAppendCanvasNode {
         this.context.fillStyle = backGroundColor
         this.context.fillRect(0, 0, w, h)
         this.context.fillStyle = foreColor
-        this.context.fillRect(0, 0, w, h)
+        drawFilledRect(this.context, this.state.scale)
     }
 
     update(cb : Function) {
         this.state.update((scale) => {
-            if (scale == -1) {
+            if (scale > -0.1 && scale < 0.1) {
                 document.body.removeChild(this.canvas)
             }
             cb()
@@ -104,8 +104,8 @@ class FillAppendCanvasNode {
         this.state.startUpdating((dir) => {
             if (dir == 1) {
                 document.body.appendChild(this.canvas)
-                window.scrollBy(0, h)
             }
+            window.scrollTo(0, this.i * h)
             cb()
         })
     }
@@ -133,14 +133,16 @@ class FillAppendCanvasList {
     }
 
     update(cb : Function) {
-        this.curr.update(cb)
+        this.curr.update(() => {
+            this.curr = this.curr.getNext(this.dir, () => {
+                this.dir *= -1
+            })
+            cb()
+        })
     }
 
     startUpdating(cb : Function) {
         this.curr.startUpdating(() => {
-            this.curr = this.curr.getNext(this.dir, () => {
-                this.dir *= -1
-            })
             cb()
         })
     }
@@ -158,8 +160,10 @@ class StageController {
     handleTap() {
         this.facl.startUpdating(() => {
             this.animator.start(() => {
+                this.draw()
                 this.facl.update(() => {
                     this.animator.stop()
+                    this.draw()
                 })
             })
         })
