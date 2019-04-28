@@ -145,3 +145,23 @@ class FillAppendCanvasList {
         })
     }
 }
+
+class StageController {
+
+    facl : FillAppendCanvasList = new FillAppendCanvasList()
+    animator : Animator = new Animator()
+
+    draw() {
+        this.facl.draw()
+    }
+
+    handleTap() {
+        this.facl.startUpdating(() => {
+            this.animator.start(() => {
+                this.facl.update(() => {
+                    this.animator.stop()
+                })
+            })
+        })
+    }
+}
