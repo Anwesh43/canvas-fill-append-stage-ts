@@ -4,6 +4,7 @@ const scGap : number = 0.05
 const foreColor : string = "#f44336"
 const backGroundColor : string = "#bdbdbd"
 const nodes : number = 5
+const textSizeFactor : number = 4
 
 const updateScale : Function = (dir : number) => {
     return dir * scGap
@@ -89,6 +90,11 @@ class FillAppendCanvasNode {
         this.context.fillRect(0, 0, w, h)
         this.context.fillStyle = foreColor
         drawFilledRect(this.context, this.state.scale)
+        this.context.font = this.context.font.replace(/\d+/, `${Math.min(w, h) / textSizeFactor}`)
+        const text : string = `${this.i + 1}`
+        const tw : number = this.context.measureText(text).width
+        this.context.fillStyle = backGroundColor
+        this.context.fillText(text, w / 2 - tw / 2, h / 2 - tw / 6)
     }
 
     update(cb : Function) {
